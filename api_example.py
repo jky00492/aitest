@@ -1,45 +1,22 @@
-from google import genai
 import google.generativeai as genai
-
-import speech_recognition as sr  # 음성 인식 라이브러리
-import pyttsx3  # 텍스트를 음성으로 변환
 
 
 # API 키 설정
 # client = genai.Client(api_key="AIzaSyAjMMzhy3Wdaw-HNabHErP8u7pKp-3-pUQ")  # "YOUR_GEMINI_API_KEY"를 발급받은 키로 교체하세요.
 genai.configure(api_key="AIzaSyAjMMzhy3Wdaw-HNabHErP8u7pKp-3-pUQ")
 
+system_instruction = "당신은 유치원 선생님입니다. 사용자는 유치원생입니다. 쉽고 친절하게 짧게 얘기하세요."
 
-conversation_history = []
-model = genai.GenerativeModel('gemini-2.0-flash')
-chat = model.start_chat(history=[])
 
-# 텍스트를 음성으로 재생 (선택적)
-def speak_text(text):
-    engine = pyttsx3.init()
-    engine.say(text)
-    engine.runAndWait()
+    # Chat 모델 호출
 
-# 음성 입력 처리
-def listen_and_recognize():
-    recognizer = sr.Recognizer()
-    with sr.Microphone() as source:
-        print("음성을 입력하세요...")
-        try:
-            # 음성 청취 후 텍스트 변환
-            audio = recognizer.listen(source, timeout=5)
-            user_input = recognizer.recognize_google(audio, language="ko-KR")  # 한국어 인식
-            print(f"들린 내용: {user_input}")
-            return user_input
-        except sr.UnknownValueError:
-            print("음성을 이해하지 못했습니다.")
-            speak_text("죄송합니다. 이해하지 못했습니다.")
-            return None
-        except sr.RequestError as e:
-            print(f"음성 인식 서비스 오류: {e}")
-            speak_text("음성 인식 서비스에서 오류가 발생했습니다.")
-            return None
-                
+model = genai.GenerativeModel('gemini-2.0-flash', system_instruction=system_instruction)
+
+chat = model.start_chat(history=[{
+    "role": "user",
+    "parts": "메가 커피 종류 알려줘"
+}])
+
 while True:
     user_input = input("You: ")
     if user_input.lower() == "exit":
